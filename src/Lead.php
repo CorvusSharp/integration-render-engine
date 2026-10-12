@@ -19,5 +19,6 @@ final readonly class Lead
         public string $password = '',
         public string $offerId = '',
         public array $subs = [],
+        public string $affiliateId = '',
     ) {}
 }

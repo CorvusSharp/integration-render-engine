@@ -9,4 +9,5 @@ enum BodyEncoding: string
     case Json = 'json';
     case Form = 'form';
     case Query = 'query';
+    case Get = 'get';
 }

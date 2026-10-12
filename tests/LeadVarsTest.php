@@ -6,6 +6,7 @@ namespace Enthusiast\IntegrationRenderEngine\Tests;
 
 use Enthusiast\IntegrationRenderEngine\Lead;
 use Enthusiast\IntegrationRenderEngine\LeadVars;
+use Enthusiast\IntegrationRenderEngine\Macros;
 use PHPUnit\Framework\TestCase;
 
 final class LeadVarsTest extends TestCase
@@ -30,6 +31,18 @@ final class LeadVarsTest extends TestCase
         self::assertSame('Platform', $vars['aff_sub4']);
         self::assertSame('pub-1', $vars['lead_id']);
         self::assertSame('https://receiver/v1/callback/pub-1/sig', $vars['callback_url']);
+        self::assertSame('', $vars['affiliate_id']);
+    }
+
+    public function testAffiliateIdFeedsTheIrevMacro(): void
+    {
+        $vars = (new LeadVars())->build(
+            new Lead('Taro', 'Yamada', 'taro@example.com', '+81 90-1234-5678', '1.2.3.4', 'JP', affiliateId: '249'),
+            'pub-2',
+        );
+
+        self::assertSame('249', $vars['affiliate_id']);
+        self::assertSame(['SUB_CAMPAIGN' => '249'], Macros::expandAll(['SUB_CAMPAIGN' => '{affiliate_id}'], $vars));
     }
 
     public function testDialCodeComesFromThePhoneNotFromTheLeadCountry(): void
