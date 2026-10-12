@@ -52,6 +52,7 @@ final readonly class LeadVars
             'ip' => $lead->ip,
             'password' => $lead->password,
             'offer_id' => $lead->offerId,
+            'affiliate_id' => $lead->affiliateId,
             'country_code' => $country,
             'country_code_lower' => strtolower($country),
             'language' => $language,

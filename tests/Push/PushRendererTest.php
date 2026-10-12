@@ -77,6 +77,16 @@ final class PushRendererTest extends TestCase
         self::assertSame(['rawPayload' => '', 'query' => 'a=1'], $message->transformationParams());
     }
 
+    public function testGetSendsBodyAsQueryWithoutBody(): void
+    {
+        $message = new PushMessage(['a' => '1', 'b' => 'x y'], ['X-Key' => 'k'], BodyEncoding::Get);
+
+        self::assertSame(
+            ['method' => 'GET', 'rawPayload' => '', 'headers' => ['X-Key' => 'k'], 'query' => 'a=1&b=x+y'],
+            $message->transformationParams(),
+        );
+    }
+
     /**
      * @return array<string, mixed>
      */

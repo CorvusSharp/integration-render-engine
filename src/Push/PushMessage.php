@@ -29,13 +29,14 @@ final readonly class PushMessage
 
         return array_filter(
             [
+                'method' => $this->encoding === BodyEncoding::Get ? 'GET' : null,
                 'rawPayload' => match ($this->encoding) {
                     BodyEncoding::Form => http_build_query($this->payload),
-                    BodyEncoding::Query => '',
+                    BodyEncoding::Query, BodyEncoding::Get => '',
                     BodyEncoding::Json => null,
                 },
                 'headers' => $headers,
-                'query' => $this->encoding === BodyEncoding::Query ? http_build_query($this->payload) : null,
+                'query' => in_array($this->encoding, [BodyEncoding::Query, BodyEncoding::Get], true) ? http_build_query($this->payload) : null,
             ],
             static fn (mixed $value): bool => $value !== null && $value !== [],
         );
