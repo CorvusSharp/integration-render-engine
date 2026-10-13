@@ -70,6 +70,26 @@ final class ConnectionTemplateTest extends TestCase
         self::assertSame('/api/pull/customers', $this->engine->renderUrl('/api/pull/customers', []));
     }
 
+    public function testRenderUrlEncodesLeadQueryValues(): void
+    {
+        self::assertSame(
+            'https://www.trackmega.info/click?cnv_id=a%2Bb&payout=200',
+            $this->engine->renderUrl(
+                'https://www.trackmega.info/click?cnv_id={{lead.clickid}}&payout={{lead.payout}}',
+                [],
+                ['clickid' => 'a+b', 'payout' => '200'],
+            ),
+        );
+        self::assertSame(
+            'https://tracker.example/pb?id=c1&token=a%2Bb',
+            $this->engine->renderUrl(
+                '{{static.API_URL}}/pb?id={{lead.clickid}}&token={{static.API_TOKEN}}',
+                ['API_URL' => 'https://tracker.example/', 'API_TOKEN' => 'a+b'],
+                ['clickid' => 'c1'],
+            ),
+        );
+    }
+
     public function testRenderHeadersFlattensToStringMap(): void
     {
         $headers = $this->engine->renderHeaders(

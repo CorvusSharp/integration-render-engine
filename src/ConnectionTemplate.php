@@ -33,14 +33,23 @@ final readonly class ConnectionTemplate
     }
 
     /**
-     * @param array<string, string> $static
+     * @param array<string, mixed> $static
+     * @param array<string, mixed> $lead
      */
-    public function renderUrl(string $template, array $static): string
+    public function renderUrl(string $template, array $static, array $lead = []): string
     {
         [$path, $query] = array_pad(explode('?', $template, 2), 2, null);
-        $url = $this->substitute($path, [], array_map(static fn (string $value): string => rtrim($value, '/'), $static));
+        $url = $this->substitute(
+            $path,
+            $this->mapStringLeaves($lead, static fn (string $value): string => rtrim($value, '/')),
+            $this->mapStringLeaves($static, static fn (string $value): string => rtrim($value, '/')),
+        );
 
-        return $query === null ? $url : $url . '?' . $this->substitute($query, [], array_map('rawurlencode', $static));
+        return $query === null ? $url : $url . '?' . $this->substitute(
+            $query,
+            $this->mapStringLeaves($lead, rawurlencode(...)),
+            $this->mapStringLeaves($static, rawurlencode(...)),
+        );
     }
 
     /**
@@ -143,6 +152,24 @@ final readonly class ConnectionTemplate
                 $keys[$match[2]] = true;
             }
         }
+    }
+
+    /**
+     * @param array<string, mixed> $bag
+     * @return array<array-key, mixed>
+     */
+    private function mapStringLeaves(array $bag, callable $map): array
+    {
+        $out = [];
+        foreach ($bag as $key => $value) {
+            $out[$key] = match (true) {
+                is_array($value) => $this->mapStringLeaves($value, $map),
+                is_scalar($value) => $map((string) $value),
+                default => '',
+            };
+        }
+
+        return $out;
     }
 
     /**
